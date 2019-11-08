@@ -1,0 +1,104 @@
+#include<stdlib.h>
+#include<stdio.h>
+#include<conio.h>
+#include<math.h>
+
+static int A[45][3],V=0,B[45][45],back[45],check[45]; 
+// A[i] la dinh thu i cua do thi
+// B la ma tran canh ke
+// V la so dinh do thi 
+// back[i] = u -> co canh noi tu u toi i 
+// check ham kiem tra dinh da duoc quet chua cua thuat toan DFS
+
+
+// Tao dinh
+void taodinh(){
+	int x,y,z;
+	for (x=0;x<11;x++){
+		for (y=0;y<8;y++){
+			for (z=0;z<5;z++){
+				if ((x+y+z) == 11){
+					A[V][0]=x;
+					A[V][1]=y;
+					A[V][2]=z;
+					V++;
+					
+				}
+			}
+		}
+	}
+}
+
+// Tao canh
+void taocanh(){
+	int i,j,t,max[3];
+	max[0]=10;
+	max[1]=7;
+	max[2]=4;
+	for(i=0;i<V;i++){
+		for(j=0;j<V;j++){
+			B[i][j] =0;
+		}
+	}
+	
+// Do nuoc tu 1 binh sang binh ben trai hoac sang binh ben phai , dung bien (t+i)%3 de binh ben phai cua binh 3 se la binh 1, binh tren trai binh 1 la binh 3
+	for(i=0;i<V;i++){
+		for(j=0;j<V;j++){
+			for(t=0;t<3;t++){
+				if(( A[j][(t)] == A[i][(t)] &&(( A[j][(t+1)%3] == max[(t+1)%3] && A[j][(t+2)%3] == A[i][(t+1)%3]+A[i][(t+2)%3] - max[(t+1)%3] ) || ( A[j][(t+1)%3] == A[i][(t+1)%3]+A[i][(t+2)%3] && A[j][(t+2)%3] == 0 )) )
+				|| ( A[j][(t)] == A[i][(t)] &&(( A[j][(t+1)%3] == A[i][(t+1)%3]+A[i][(t+2)%3] - max[(t+2)%3] && A[j][(t+2)%3] == max[(t+2)%3] ) || ( A[j][(t+1)%3] == 0 && A[j][(t+2)%3] ==  A[i][(t+1)%3]+A[i][(t+2)%3] )) ) )
+				{
+					B[i][j]= 1;
+					break; // chi can 1 TH t/m la co the chuyen den dinh tiep theo
+				}
+			}
+		}
+	}
+}
+// tham cac dinh tu dinh u
+void Visit(int u){
+	int i;
+	check[u]=1;
+	for(i=0;i<V;i++){
+		if(B[u][i] == 1 && check[i] == 0){
+			back[i]=u;
+			Visit(i);
+		}
+	}
+}
+// in duong di
+void PrintPath(int start , int finish){
+	int i;
+	if(start == finish){
+		printf("%d-%d-%d\n",A[finish][0],A[finish][1],A[finish][2]);
+	}
+	else{
+		if(back[finish] !=-1){
+			PrintPath(start,back[finish]);
+			printf("%d-%d-%d\n",A[finish][0],A[finish][1],A[finish][2]);
+		}
+	}
+	
+}
+int main(){
+	int j,i,dem=0;
+	taodinh();
+	taocanh();
+	//empty check[]
+	for(j=0;j<V;j++){
+		check[j]=0;
+	}
+	// dinh 0,7,4 la dinh duoc tao dau tien theo thuat toan nen no co thu tu la 0 trong mang A
+	Visit(0);
+	for(j=0;j<V;j++){
+		if(check[j]!=0&&(A[j][1]==2 || A[j][2]==2)){
+			PrintPath(0,j);
+			dem++;
+			break;
+		}
+	}
+	if(dem==0){
+		printf("Khong co duong di \n");
+	}
+	getch();
+}
